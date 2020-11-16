@@ -59,11 +59,12 @@ x_vec = rnorm(30, mean = 5, sd = 3)
 (x_vec - mean(x_vec))/sd(x_vec)
 ```
 
-    ##  [1]  0.51568844 -0.44693096  0.59696509 -1.04052722 -1.42565192  0.04993637
-    ##  [7]  0.99841043 -0.90135098  1.55106333 -0.54092093 -0.02360795 -0.07159675
-    ## [13] -0.92423460  1.09581144 -0.78940377 -0.21143205 -0.30989081  0.66988629
-    ## [19]  0.23818108 -2.19036988  0.12639678 -1.69416150 -0.53535337  0.32246463
-    ## [25]  0.69264419  1.13218387  0.04750053  2.70496498  0.15522235  0.20811289
+    ##  [1] -1.042530305 -2.852751595 -0.005708364 -1.266250969 -1.044081533
+    ##  [6]  0.060916742 -1.254659033  0.996632126  0.394931490 -0.053666573
+    ## [11] -0.655131013 -0.191468422  0.242830966  0.371207849  0.474316989
+    ## [16]  2.267622472  0.539072825 -1.142359115  1.071169748  1.048829744
+    ## [21] -0.253218262  0.802703082  0.620762002 -0.396460254  0.235260033
+    ## [26]  0.412484146  0.336045280  1.472521968 -0.510666347 -0.678355677
 
 I want a function to compute z\_scores
 
@@ -82,13 +83,14 @@ z_scores = function(x){
 z_scores(x_vec)
 ```
 
-    ##  [1]  0.51568844 -0.44693096  0.59696509 -1.04052722 -1.42565192  0.04993637
-    ##  [7]  0.99841043 -0.90135098  1.55106333 -0.54092093 -0.02360795 -0.07159675
-    ## [13] -0.92423460  1.09581144 -0.78940377 -0.21143205 -0.30989081  0.66988629
-    ## [19]  0.23818108 -2.19036988  0.12639678 -1.69416150 -0.53535337  0.32246463
-    ## [25]  0.69264419  1.13218387  0.04750053  2.70496498  0.15522235  0.20811289
+    ##  [1] -1.042530305 -2.852751595 -0.005708364 -1.266250969 -1.044081533
+    ##  [6]  0.060916742 -1.254659033  0.996632126  0.394931490 -0.053666573
+    ## [11] -0.655131013 -0.191468422  0.242830966  0.371207849  0.474316989
+    ## [16]  2.267622472  0.539072825 -1.142359115  1.071169748  1.048829744
+    ## [21] -0.253218262  0.802703082  0.620762002 -0.396460254  0.235260033
+    ## [26]  0.412484146  0.336045280  1.472521968 -0.510666347 -0.678355677
 
-Try my function on some other things.
+Try my function on some other things. These should give errors.
 
 ``` r
 z_scores(3)
@@ -113,3 +115,97 @@ z_scores(c(TRUE, TRUE, FALSE, TRUE))
 ```
 
     ## Error in z_scores(c(TRUE, TRUE, FALSE, TRUE)): input must be numeric
+
+## Multiple outputs
+
+``` r
+mean_and_sd = function(x){
+  if(!is.numeric(x)){
+    stop("input must be numeric")
+  }
+  if (length(x)<3){
+    stop("input must have at least three numbers")
+  }
+ mean_x = mean(x)
+ sd_x = sd(x)
+ tibble(
+   mean=mean_x,
+   sd = sd_x
+ )
+}
+```
+
+check that the function works
+
+``` r
+x_vec = rnorm(100, mean = 3, sd = 4)
+mean_and_sd(x_vec)
+```
+
+    ## # A tibble: 1 x 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1  2.31  4.29
+
+## Multiple inputs
+
+I’d like to do this with a function.
+
+``` r
+sim_data = 
+  tibble(
+    x = rnorm(100, mean = 4, sd =3)
+  )
+
+sim_data %>% 
+  summarize(
+    mean = mean(x),
+    sd = sd(x)
+  )
+```
+
+    ## # A tibble: 1 x 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1  4.18  3.27
+
+``` r
+sim_mean_sd = function(sample_size, mu = 3, sigma = 4) ##default can overwritten
+  { 
+  sim_data = 
+  tibble(
+    x = rnorm(n = sample_size, mean = mu, sd = sigma)
+  )
+
+sim_data %>% 
+  summarize(
+    mean = mean(x),
+    sd = sd(x)
+  )
+}
+
+sim_mean_sd(sample_size = 100, mu = 6, sigma = 3)
+```
+
+    ## # A tibble: 1 x 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1  6.87  3.42
+
+``` r
+sim_mean_sd(mu = 6, sample_size = 100, sigma = 3) #can change position
+```
+
+    ## # A tibble: 1 x 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1  5.55  2.91
+
+``` r
+sim_mean_sd(sample_size = 100) #by default
+```
+
+    ## # A tibble: 1 x 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1  3.79  4.23
