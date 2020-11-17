@@ -1,0 +1,88 @@
+---
+title: "Simulations"
+output: github_document
+---
+
+```{r setup}
+library(tidyverse)
+library(rvest)
+library(rnoaa)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+theme_set(theme_minimal() +  theme(legend.position = "bottom"))
+
+options(
+  ggplots2.continuous.color = "viridis",
+  ggplots2.continuous.fill = "viridus"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+## Let's simulate something
+
+I have a function
+```{r}
+sim_mean_sd = function(sample_size, mu = 3, sigma = 4) ##default can overwritten
+  { 
+  sim_data = 
+  tibble(
+    x = rnorm(n = sample_size, mean = mu, sd = sigma)
+  )
+
+sim_data %>% 
+  summarize(
+    mean = mean(x),
+    sd = sd(x)
+  )
+}
+
+```
+
+I can simulate by running this line.
+```{r}
+sim_mean_sd(30) ## sample_size = 30, just one simulation!
+```
+
+## Let's simulate a lot
+
+Let's start with a for loop.
+```{r}
+output = vector("list", length = 100)
+
+for (i in 1:100){
+  
+  output[[i]] = sim_mean_sd(sample_size = 30)
+  
+}
+
+bind_rows(output)
+```
+
+Let's use a loop function.
+```{r}
+sim_results = 
+rerun(100, sim_mean_sd(sample_size = 30)) %>% 
+  bind_rows()
+```
+
+Let's look at results
+```{r}
+sim_results %>% 
+  ggplot(aes(x = mean)) + geom_density()
+
+sim_results %>% 
+  summarize(
+    avg_sample_mean = mean(mean),
+    sd_sample_mean =sd(mean)
+  )
+
+sim_results %>% 
+  ggplot(aes(x = sd)) + geom_density()
+```
+
